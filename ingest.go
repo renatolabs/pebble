@@ -929,7 +929,7 @@ func (d *DB) validateSSTables() {
 
 		err := d.tableCache.withReader(f.Meta, func(r *sstable.Reader) error {
 			return r.ValidateBlockChecksums()
-		})
+		}, false)
 		if err != nil {
 			// TODO(travers): Hook into the corruption reporting pipeline, once
 			// available. See pebble#1192.

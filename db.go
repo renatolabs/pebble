@@ -1704,7 +1704,7 @@ func (d *DB) EstimateDiskUsage(start, end []byte) (uint64, error) {
 				err := d.tableCache.withReader(file, func(r *sstable.Reader) (err error) {
 					size, err = r.EstimateDiskUsage(start, end)
 					return err
-				})
+				}, false)
 				if err != nil {
 					return 0, err
 				}
@@ -1885,10 +1885,10 @@ func (d *DB) makeRoomForWrite(b *Batch) error {
 				if recycleOK {
 					recycleLogName := base.MakeFilepath(d.opts.FS, d.walDirname, fileTypeLog, recycleLog.fileNum)
 					newLogFile, err = d.opts.FS.ReuseForWrite(recycleLogName, newLogName)
-					base.MustExist(d.opts.FS, newLogName, d.opts.Logger, err)
+					base.MustExist(d.opts.FS, newLogName, d.opts.Logger, err, false)
 				} else {
 					newLogFile, err = d.opts.FS.Create(newLogName)
-					base.MustExist(d.opts.FS, newLogName, d.opts.Logger, err)
+					base.MustExist(d.opts.FS, newLogName, d.opts.Logger, err, false)
 				}
 			}
 

@@ -273,7 +273,7 @@ func (d *DB) loadTableStats(
 		// picking.
 		stats.NumRangeKeySets = r.Properties.NumRangeKeySets
 		return
-	})
+	}, false)
 	if err != nil {
 		return stats, nil, err
 	}
@@ -399,7 +399,7 @@ func (d *DB) averageEntrySizeBeneath(
 				keySum += r.Properties.RawKeySize
 				valSum += r.Properties.RawValueSize
 				return nil
-			})
+			}, false)
 			if err != nil {
 				return 0, 0, err
 			}
@@ -504,7 +504,7 @@ func (d *DB) estimateReclaimedSizeBeneath(
 				err := d.tableCache.withReader(file, func(r *sstable.Reader) (err error) {
 					size, err = r.EstimateDiskUsage(start, end)
 					return err
-				})
+				}, false)
 				if err != nil {
 					return 0, hintSeqNum, err
 				}

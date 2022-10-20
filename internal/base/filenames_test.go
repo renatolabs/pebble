@@ -100,7 +100,7 @@ func TestMustExist(t *testing.T) {
 	var buf bufferFataler
 	filename := fs.PathJoin("..", "..", "testdata", "db-stage-4", "000000.sst")
 
-	MustExist(fs, filename, &buf, err)
+	MustExist(fs, filename, &buf, err, false)
 	require.Equal(t, `000000.sst:
 file does not exist
 directory contains 10 files, 3 unknown, 1 tables, 1 logs, 1 manifests`, buf.buf.String())

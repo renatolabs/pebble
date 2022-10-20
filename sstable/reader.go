@@ -2618,7 +2618,7 @@ func (r *Reader) readBlock(
 					// immediately.  Something is seriously wrong if a table
 					// doesn't exist.
 					// See cockroachdb/cockroach#56490.
-					base.MustExist(r.fs, r.filename, panicFataler{}, err)
+					base.MustExist(r.fs, r.filename, panicFataler{}, err, false)
 				}
 			}
 			if raState.sequentialFile == nil {

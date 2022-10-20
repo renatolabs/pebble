@@ -133,8 +133,8 @@ type Fataler interface {
 // If it is, it lists the containing directory's files to annotate the error
 // with counts of the various types of files and invokes the provided fataler.
 // See cockroachdb/cockroach#56490.
-func MustExist(fs vfs.FS, filename string, fataler Fataler, err error) {
-	if err == nil || !oserror.IsNotExist(err) {
+func MustExist(fs vfs.FS, filename string, fataler Fataler, err error, breakPebble bool) {
+	if !breakPebble && (err == nil || !oserror.IsNotExist(err)) {
 		return
 	}
 

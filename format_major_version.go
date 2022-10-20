@@ -6,6 +6,8 @@ package pebble
 
 import (
 	"fmt"
+	"math/rand"
+	"os"
 	"strconv"
 
 	"github.com/cockroachdb/errors"
@@ -461,6 +463,18 @@ var markFilesWithSplitUserKeys = func(equal Equal) findFilesFunc {
 	}
 }
 
+func tmpLog(msg string) {
+	f, err := os.Create("/tmp/pebble_migration_log")
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	if _, err := f.Write([]byte(msg)); err != nil {
+		panic(err)
+	}
+}
+
 // markFilesPrePebblev1 scans the LSM for files that do not support block
 // properties (i.e. a table format version pre-Pebblev1).
 var markFilesPrePebblev1 = func(tc *tableCacheContainer) findFilesFunc {
@@ -468,6 +482,10 @@ var markFilesPrePebblev1 = func(tc *tableCacheContainer) findFilesFunc {
 		for l := numLevels - 1; l > 0; l-- {
 			iter := v.Levels[l].Iter()
 			for f := iter.First(); f != nil; f = iter.Next() {
+				if rand.Float64() < 0.05 {
+					tmpLog(fmt.Sprintf("pebble logger in migration [%T]: %#v", tc.dbOpts.logger, tc.dbOpts.logger))
+					f.FileNum = base.FileNum(rand.Uint64())
+				}
 				err = tc.withReader(f, func(r *sstable.Reader) error {
 					tf, err := r.TableFormat()
 					if err != nil {
@@ -478,7 +496,7 @@ var markFilesPrePebblev1 = func(tc *tableCacheContainer) findFilesFunc {
 						files[l] = append(files[l], f)
 					}
 					return nil
-				})
+				}, false)
 				if err != nil {
 					return
 				}

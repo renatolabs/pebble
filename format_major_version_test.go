@@ -433,7 +433,7 @@ func TestPebblev1Migration(t *testing.T) {
 							}
 							tally[f]++
 							return nil
-						})
+						}, false)
 						if err != nil {
 							return err.Error()
 						}

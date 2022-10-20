@@ -170,12 +170,12 @@ func (c *tableCacheContainer) metrics() (CacheMetrics, FilterMetrics) {
 	return m, f
 }
 
-func (c *tableCacheContainer) withReader(meta *fileMetadata, fn func(*sstable.Reader) error) error {
+func (c *tableCacheContainer) withReader(meta *fileMetadata, fn func(*sstable.Reader) error, bp bool) error {
 	s := c.tableCache.getShard(meta.FileNum)
 	v := s.findNode(meta, &c.dbOpts)
 	defer s.unrefValue(v)
 	if v.err != nil {
-		base.MustExist(c.dbOpts.fs, v.filename, c.dbOpts.logger, v.err)
+		base.MustExist(c.dbOpts.fs, v.filename, c.dbOpts.logger, v.err, bp)
 		return v.err
 	}
 	return fn(v.reader)
@@ -368,7 +368,7 @@ func (c *tableCacheShard) newIters(
 	v := c.findNode(file, dbOpts)
 	if v.err != nil {
 		defer c.unrefValue(v)
-		base.MustExist(dbOpts.fs, v.filename, dbOpts.logger, v.err)
+		base.MustExist(dbOpts.fs, v.filename, dbOpts.logger, v.err, false)
 		return nil, nil, v.err
 	}
 
@@ -450,7 +450,7 @@ func (c *tableCacheShard) newRangeKeyIter(
 	v := c.findNode(file, dbOpts)
 	if v.err != nil {
 		defer c.unrefValue(v)
-		base.MustExist(dbOpts.fs, v.filename, dbOpts.logger, v.err)
+		base.MustExist(dbOpts.fs, v.filename, dbOpts.logger, v.err, false)
 		return nil, v.err
 	}
 
